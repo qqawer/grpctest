@@ -25,6 +25,7 @@ func ModelToResponse(user model.User) proto.UserInfoResponse {
 	if user.Birthday != nil {
 		UserInfoRsp.Birthday = uint64(user.Birthday.Unix())
 	}
+	return UserInfoRsp
 }
 
 func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*proto.UserListResponse, error) {
