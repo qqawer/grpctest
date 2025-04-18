@@ -18,9 +18,9 @@ type User struct {
 
 type BaseModel struct {
 	ID       int32 `gorm:"primarykey"`
-	CreateAt time.Time `gorm:"column:add_time"`
-	UpdateAt time.Time `gorm:"column:update_time"`
-	DeleteAt gorm.DeletedAt
+	CreatedAt time.Time `gorm:"column:add_time"`
+	UpdatedAt time.Time `gorm:"column:update_time"`
+	DeletedAt gorm.DeletedAt
 	IsDeleted bool
 }
 	
