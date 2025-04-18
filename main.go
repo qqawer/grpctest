@@ -1,19 +1,32 @@
 package main
 
 import (
-	"grpctest/global"
-	model "grpctest/model/user"
+	"flag"
+	"fmt"
+	_ "grpctest/global"
+	"grpctest/handler"
+	"grpctest/model/proto"
+	"net"
+
+	"google.golang.org/grpc"
 )
 
 func main() {
-	
-	//设置全局的logger,这个logger在我们执行每个sql语句的时候会打印每一行sql
-	//sql才是最重要的，本着这个的原则我尽量的给大家看到每个api背后的sql语句是什么
+	IP:=flag.String("ip","0.0.0.0","ip地址")
+	Port:=flag.Int("port",50051,"端口号")
 
-	//定义一个表结构，将表结构直接生成对应的表 - migrations
-	//迁移schema
-	
-  // Migrate the schema
-  
-  global.DB.AutoMigrate(&model.User{})
+	flag.Parse()
+	fmt.Println("ip:",*IP)
+	fmt.Println("port:",*Port)
+	server := grpc.NewServer()
+	proto.RegisterUserServer(server,&handler.UserServer{})
+	// lis,err:=net.Listen("tcp", "0.0.0.0:8088")
+	lis,err:=net.Listen("tcp",fmt.Sprintf("%s:%d",*IP,*Port))
+	if err!=nil{
+		panic("failed to listen:"+err.Error())
+	}
+	err=server.Serve(lis)
+	if err!=nil{
+		panic("failed to start grpc:"+err.Error()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          )
+	}
 }
