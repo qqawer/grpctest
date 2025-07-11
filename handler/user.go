@@ -54,7 +54,7 @@ func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*pro
 func (s *UserServer) GetUserByMobile(ctx context.Context, req *proto.MobileRequest) (*proto.UserInfoResponse, error) {
 	//通过手机号查询用户
 	var user model.User
-	result := global.DB.Where("mobile = ?", user.Mobile).First(&user)
+	result := global.DB.Where("mobile = ?", req.Mobile).First(&user)
 	if result.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "用户不存在")
 	}

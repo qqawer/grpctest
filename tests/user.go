@@ -27,6 +27,25 @@ func Init() {
 	userClient = proto.NewUserClient(conn)
 	
 }
+func TestGetUserList(){
+	rsp,err:=userClient.GetUserList(context.Background(),&proto.PageInfo{
+		Pn:1,
+		PSize:5,
+	})
+	if err!= nil{
+		panic(err)
+	}
+	for _,user :=range rsp.Data{
+		fmt.Println(user.Mobile,user.NickName,user.Password)
+		CheckRsp,err:=userClient.CheckPassWord(context.Background(),&proto.PasswordCheckInfo{
+			Password: "admin123",
+			EncryptedPassword: user.Password,
+		})
+		if err!=nil{
+			fmt.Println(CheckRsp.Success)
+		}
+	}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+}
 
 func TestCreateUser(){
 	for i:=0;i<10;i++{
@@ -45,6 +64,7 @@ func TestCreateUser(){
 }
 func main() {
 	Init()
-	TestCreateUser()
+	// TestCreateUser()
+	TestGetUserList()
 	conn.Close()
 }
