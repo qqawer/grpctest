@@ -1,0 +1,6 @@
+mysql:
+  host: 192.168.11.210
+  port: 3306
+  user: root
+  password: 123456
+  name: 'grpctest'
