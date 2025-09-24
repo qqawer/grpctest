@@ -8,6 +8,7 @@ import (
 	"grpctest/handler"
 	"grpctest/initialize"
 	"grpctest/model/proto"
+	"grpctest/utils"
 	"net"
 
 	"github.com/hashicorp/consul/api"
@@ -19,7 +20,7 @@ import (
 
 func main() {
 	IP:=flag.String("ip","0.0.0.0","ip地址")
-	Port:=flag.Int("port",50051,"端口号")
+	Port:=flag.Int("port",0,"端口号")
 
 	//初始化	
 	initialize.InitLogger()
@@ -32,6 +33,15 @@ func main() {
 	flag.Parse()
 	zap.S().Info("ip:",*IP)
 	fmt.Println("port:",*Port)
+	//如果端口为0，随机获取一个端口
+	if *Port==0{
+		port,err:=utils.GetFreePort()
+		if err!=nil{
+			panic(err)
+		}
+		*Port=port
+	}
+	
 	server := grpc.NewServer()
 	proto.RegisterUserServer(server,&handler.UserServer{})
 	// lis,err:=net.Listen("tcp", "0.0.0.0:8088")
@@ -53,7 +63,7 @@ func main() {
 	}
 	check:=&api.AgentServiceCheck{
 		//HTTP: "http://127.0.0.1:8021/health",
-		GRPC: fmt.Sprintf("192.168.11.120:50051"),//Consul 会定期请求这个 URL 来检查服务是否健康
+		GRPC: fmt.Sprintf("192.168.11.120:%d",*Port),//Consul 会定期请求这个 URL 来检查服务是否健康
 		Interval: "5s",//每 5s 检查一次。
     	Timeout: "2s",// 检查响应超时时间为 2s。
     	DeregisterCriticalServiceAfter: "10s",//如果连续失败达 10s，则从注册列表中移除服务。
@@ -66,8 +76,9 @@ func main() {
 	registration.Tags=[]string{"mxshop","boddy","imooc","user","srv"}//服务标签，用于分类或标记服务（如 ["mxshop", "boddy"]）。
 	registration.Address="192.168.11.120"//服务所在主机的 IP 地址,会被web层拿到做服务发现，consul自己来做检查的
 	registration.Check=check
-	err=client.Agent().ServiceRegister(registration)
-
+	if err := client.Agent().ServiceRegister(registration); err != nil {
+    zap.S().Fatalf("register service to consul failed: %v", err)
+}
 	err=server.Serve(lis)
 	if err!=nil{
 		panic("failed to start grpc:"+err.Error()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          )
